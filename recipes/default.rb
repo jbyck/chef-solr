@@ -126,7 +126,7 @@ cookbook_file 'solr.xml' do
   action :create_if_missing
 end
 
-if node[:solr][:solr4j][:enable] and solr_version[:major] => 4 and solr_version[:minor] >= 3
+if node[:solr][:sl4j][:enable] and solr_version[:major] >= 4 and solr_version[:minor] >= 3
   Chef::Log.info "Including sl4j recipe."
   include_recipe "chef-solr::sl4j"
 else
