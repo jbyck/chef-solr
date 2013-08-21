@@ -119,10 +119,10 @@ remote_directory "/etc/solr/conf" do
 end
 
 # Copy the default solr.xml file into the solr repo
-cookbook_file "#{node[:solr][:home]}/solr.xml" do
+cookbook_file 'solr.xml' do
   owner node.jetty.user
   group node.jetty.group
-  path 'solr.xml'
+  path "#{node[:solr][:home]}/solr.xml"
   action :create_if_missing
 end
 
