@@ -124,15 +124,45 @@ cookbook_file 'solr.xml' do
   group node.jetty.group
   path "#{node[:solr][:home]}/solr.xml"
   action :create_if_missing
+  notifies :restart, "service[jetty]"
 end
 
-if node[:solr][:sl4j][:enable] and solr_version[:major] >= 4 and solr_version[:minor] >= 3
-  Chef::Log.info "Including sl4j recipe."
-  include_recipe "chef-solr::sl4j"
+if solr_version[:major] >= 4 and solr_version[:minor] >= 3
+  
+  Chef
+
+  bash "Copying Jars from extracted Solr #{node[:solr][:extracted]}/example/lib/ext into Jetty lib #{node[:jetty][:home]}/lib/ext using solr version #{node[:solr][:version]}" do
+    user 'root'
+    group 'root'
+    code %Q{
+      cp #{node[:solr][:extracted]}/example/lib/ext/* #{node[:jetty][:home]}/lib/ext
+    }
+  end
+  
+  Chef::Log.info "Creating directory #{node.jetty.home}/resource"
+  directory "#{node.jetty.home}/resource" do
+    action :create
+    owner node.jetty.user
+    group node.jetty.group
+    mode '750'
+  end
+
+  Chef::Log.info "Creating the log4j properties file"
+  template "#{node.jetty.home}/resource/log4j.properties" do
+    owner node.jetty.user
+    group node.jetty.group
+    source 'log4j.properties.erb'
+    variables(:log => node[:solr][:log])
+    notifies :restart, "service[jetty]"
+  end
+
 else
-  Chef::Log.info "Not including sl4j recipe"
+  Chef::Log.info "Solr version is less than 4.3. Don't configure log4j."
 end
 
-service 'jetty' do
-  action [:enable, :restart]
+bash "Restart of Jetty" do
+  user "root"
+  code %Q{
+    service jetty restart
+  }
 end
