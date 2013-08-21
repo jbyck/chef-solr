@@ -118,6 +118,14 @@ remote_directory "/etc/solr/conf" do
   not_if       "test -e #{node.solr.custom_config}/solrconfig.xml"
 end
 
+# Copy the default solr.xml file into the solr repo
+cookbook_file "#{node[:solr][:home]}/solr.xml" do
+  owner node.jetty.user
+  group node.jetty.group
+  path 'solr.xml'
+  action :create_if_missing
+end
+
 # If Solr version >= 4.3.0 and SL4j should be used, copy JARs from extracted solr into Jetty lib/ext directory and restart
 
 bash "Copying Jars from extracted Solr #{node[:solr][:extracted]}/example/lib/ext into Jetty lib #{node[:jetty][:home]}/lib/ext using solr version #{node[:solr][:version]}" do
