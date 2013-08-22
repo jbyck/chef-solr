@@ -118,19 +118,8 @@ remote_directory "/etc/solr/conf" do
   not_if       "test -e #{node.solr.custom_config}/solrconfig.xml"
 end
 
-# Copy the default solr.xml file into the solr repo
-cookbook_file 'solr.xml' do
-  owner node.jetty.user
-  group node.jetty.group
-  path "#{node[:solr][:home]}/solr.xml"
-  action :create_if_missing
-  notifies :restart, "service[jetty]"
-end
-
 if solr_version[:major] >= 4 and solr_version[:minor] >= 3
   
-  Chef
-
   bash "Copying Jars from extracted Solr #{node[:solr][:extracted]}/example/lib/ext into Jetty lib #{node[:jetty][:home]}/lib/ext using solr version #{node[:solr][:version]}" do
     user 'root'
     group 'root'
@@ -160,9 +149,6 @@ else
   Chef::Log.info "Solr version is less than 4.3. Don't configure log4j."
 end
 
-bash "Restart of Jetty" do
-  user "root"
-  code %Q{
-    service jetty restart
-  }
+service 'jetty' do
+  action :restart
 end
