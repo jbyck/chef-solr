@@ -128,8 +128,8 @@ if solr_version[:major] >= 4 and solr_version[:minor] >= 3
     }
   end
   
-  Chef::Log.info "Creating directory #{node.jetty.home}/resource"
-  directory "#{node.jetty.home}/resource" do
+  Chef::Log.info "Creating directory #{node.jetty.home}/resources"
+  directory "#{node.jetty.home}/resources" do
     action :create
     owner node.jetty.user
     group node.jetty.group
@@ -137,7 +137,7 @@ if solr_version[:major] >= 4 and solr_version[:minor] >= 3
   end
 
   Chef::Log.info "Creating the log4j properties file"
-  template "#{node.jetty.home}/resource/log4j.properties" do
+  template "#{node.jetty.home}/resources/log4j.properties" do
     owner node.jetty.user
     group node.jetty.group
     source 'log4j.properties.erb'
